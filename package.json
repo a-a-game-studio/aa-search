@@ -1,26 +1,27 @@
 {
-  "name": "@a-a-game-studio/aa-core",
+  "name": "@a-a-game-studio/aa-search",
   "version": "1.0.37",
-  "description": "Base core server application",
+  "description": "Поисковой движок",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/a-a-game-studio/aa-core.git"
+    "url": "git+https://github.com/a-a-game-studio/aa-search.git"
   },
   "keywords": [
-    "core"
+    "search"
   ],
   "author": "a-a-game-studio",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/a-a-game-studio/aa-core/issues"
+    "url": "https://github.com/a-a-game-studio/aa-search/issues"
   },
-  "homepage": "https://github.com/a-a-game-studio/aa-core#readme",
+  "homepage": "https://github.com/a-a-game-studio/aa-search#readme",
   "peerDependencies": {},
   "devDependencies": {
     "@trongnd/ts-nodemon": "^1.0.3",
     "@types/expect": "^1.20.4",
+    "@types/ioredis": "^4.19.3",
     "@types/lodash": "^4.14.150",
     "@types/md5": "^2.2.0",
     "@types/mocha": "^5.2.6",
@@ -62,6 +63,7 @@
     "express": "^4.17.1",
     "fast-crc32c": "^2.0.0",
     "fs": "0.0.1-security",
+    "ioredis": "^4.22.0",
     "knex": "^0.19.5",
     "lodash": "^4.17.20",
     "md5": "^2.2.1",

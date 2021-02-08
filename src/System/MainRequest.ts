@@ -11,6 +11,7 @@ import { ListDB } from '@a-a-game-studio/aa-classes/lib/BaseClass/ListDB';
 import { KnexSys } from './KnexSys';
 import { CacheSys } from './CacheSys';
 import { LogicSys } from './LogicSys';
+import { bool } from 'aws-sdk/clients/signer';
 
 
 /**
@@ -83,6 +84,7 @@ export interface MainRequest extends Request {
     sys: {
         token: string,
         bAuth: boolean, /* флаг авторизации */
+        bCache: boolean, // Включение выключение кеша
         errorSys: AAClasses.Components.ErrorSys,
         userSys: UserSys,
         knexSys: KnexSys,
@@ -111,6 +113,7 @@ export function initMainRequest(conf: any): MainRequest {
         sys: {
             token: '',
             bAuth: false, /* флаг авторизации */
+            bCache: true, /* флаг авторизации */
             errorSys: null,
             userSys: null,
             responseSys: null,
