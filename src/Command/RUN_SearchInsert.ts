@@ -79,24 +79,89 @@ const confIndex = [
     'description'
 ]
 
-function runInsert(){
+async function runInsert(){
+    await db('ix_tovar').truncate();
+    await db('source_tovar').truncate();
+    
 
+    let aRowData:any[] = [];
+    let iIter = 0;
+    let idLastRow = 0;
+    do {
+        aRowData = [];
+
+        let aRow = (await dbTovar('tovar')
+            .where('id', '>', idLastRow)
+            .limit(100)
+            .select()
+        );
+
+        const asTovar_1C_ID = aRow.map(v => v.kod_1c);
+
+
+        let aRowOstatok = (await dbTovar('ostatok')
+            .whereIn('kod_1c', asTovar_1C_ID)
+            .select('kod_1c', 'color', 'size')
+        );
+
+        const ixRowOstatokBy1C = _.groupBy(aRowOstatok, 'kod_1c');
+        // console.log('ixRowOstatokBy1C:',ixRowOstatokBy1C);
+        
+        aRowData = aRow.map(v => {
+            let aOstatok = ixRowOstatokBy1C[v.kod_1c];
+            // console.log('aOstatok:', v.kod_1c,aOstatok);
+            let sOstatok = '';
+            if(aOstatok){
+                // console.log('aOstatok:',aOstatok);
+                sOstatok = (aOstatok.map(v1 => ('цвет:'+v1.color + ' ' + 'размер:'+v1.size)) ).join(' ');
+                // console.log('sOstatok:',sOstatok);
+            }
+
+            if(idLastRow < v.id){
+                idLastRow = v.id;
+                
+            }
+            
+            return { id_row:v.id, text:v.name + ' ' + v.sostav + ' ' + v.description + ' ' + sOstatok };
+        });
+
+
+        console.log('iter:', iIter, ' - ', idLastRow);
+        iIter++;
+
+        await runInsertLetter(aRowData);
+
+        const aRowSourceInsert = aRow.map(v => {
+            let aOstatok = ixRowOstatokBy1C[v.kod_1c];
+
+            return {
+                id:v.id,
+                kod_1c:v.kod_1c,
+                name:v.name,
+                sostav:v.sostav,
+                description:v.description,
+                ostatok:JSON.stringify(aOstatok)
+            }
+        });
+        (await db('source_tovar')
+            .insert(aRowSourceInsert)
+        );
+
+    } while( aRowData.length > 0 )
+
+    console.log('END');
 }
 
-async function  runInsertLetter(){
+async function  runInsertLetter(aRowData:{
+    id_row: number;
+    text: string;
+}[]){
+
+    // console.log('aRowData:',aRowData);
 
     // await db('word').truncate();
     // await db('letter').truncate();
-    await db('ix_tovar').truncate();
-
-    let aRow = (await dbTovar('tovar')
-        .limit(100)
-        .select()
-    );
-
-    const aRowData = aRow.map(v => {
-        return { id_row:v.id, text:v.name + ' ' + v.sostav + ' ' + v.description };
-    });
+    
 
     let asWordPool:{id_row:number, id_word:number, word:string}[] = [];
 
@@ -110,28 +175,33 @@ async function  runInsertLetter(){
         for (let j = 0; j < asWord.length; j++) {
             const sWord = String(asWord[j]).trim().toLowerCase().replace(',','');
 
-
-            // Проверям слово в базе
-            const ifWord = await fCheckWord(sWord);
             let idWord = 0;
-            if(!ifWord && sWord != '' && sWord.length > 1){
-
-                idWord = (await db('word')
-                    .insert({word:sWord, cnt:sWord.length})
-                )[0];
-
-                asWordPool.push({
-                    id_row: vRowData.id_row, id_word:idWord, word:sWord
-                });
-            } else {
-                const oneWord = await fOneWord(sWord);
+            // Проверям слово в базе
+            if(sWord.length > 1){
+                const ifWord = await fCheckWord(sWord);
                 
-                if(oneWord){
-                    idWord = oneWord.id;
+                
+                if(!ifWord && sWord != ''){
+
+                    idWord = (await db('word')
+                        .insert({word:sWord, cnt:sWord.length})
+                    )[0];
+
+                    console.log('===>',idWord, sWord);
+
+                    asWordPool.push({
+                        id_row: vRowData.id_row, id_word:idWord, word:sWord
+                    });
+                } else {
+                    const oneWord = await fOneWord(sWord);
+                    
+                    if(oneWord){
+                        idWord = oneWord.id;
+                    }
                 }
             }
 
-            console.log('===>',idWord, sWord);
+            // console.log('===>',idWord, sWord);
 
             // Индекс слов
             if(idWord && sWord.length > 1){
@@ -193,9 +263,9 @@ async function  runInsertLetter(){
     //     a.push
     // }
    
-    console.log('END');
 }
 
+// Проверить наличие слова в базе
 async function fCheckWord(sWord:string): Promise<boolean>{
     let oneWord = null;
     try{
@@ -215,10 +285,13 @@ async function fCheckWord(sWord:string): Promise<boolean>{
     return oneWord ? true : false;
 }
 
+// Получить данные по слову в базе
 async function fOneWord(sWord:string): Promise<any>{
     let oneWord = null;
     try{
+
         oneWord = await cacheSys.autoCache(`fOneWord(${sWord})`, 3600, async () => {
+
             oneWord = (await db('word')
                 .where({word:sWord})
                 .limit(1)
@@ -237,7 +310,7 @@ async function fOneWord(sWord:string): Promise<any>{
 
 
 
-runInsertLetter();
+runInsert();
 
 
 
