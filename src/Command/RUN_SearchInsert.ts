@@ -73,11 +73,12 @@ const cacheSys = new CacheSys(req);
 
 
 
-const confIndex = [
-    'name',
-    'sostav',
-    'description'
-]
+const confIndex = {
+    'name':1,
+    'sostav':2,
+    'description':3,
+    'ostatok':4
+}
 
 async function runInsert(){
     await db('ix_tovar').truncate();
@@ -107,7 +108,7 @@ async function runInsert(){
         const ixRowOstatokBy1C = _.groupBy(aRowOstatok, 'kod_1c');
         // console.log('ixRowOstatokBy1C:',ixRowOstatokBy1C);
         
-        aRowData = aRow.map(v => {
+        _.forEach(aRow, (v,k) => {
             let aOstatok = ixRowOstatokBy1C[v.kod_1c];
             // console.log('aOstatok:', v.kod_1c,aOstatok);
             let sOstatok = '';
@@ -122,14 +123,25 @@ async function runInsert(){
                 
             }
             
-            return { id_row:v.id, text:v.name + ' ' + v.sostav + ' ' + v.description + ' ' + sOstatok };
+            // aRowData.push({ id_row:v.id, column:0, text:fClearText(v.name + ' ' + v.sostav + ' ' + v.description + ' ' + sOstatok) });
+
+
+            aRowData.push({ id_row:v.id, column:confIndex.name, text:fClearText(v.name) });
+            aRowData.push({ id_row:v.id, column:confIndex.ostatok, text:fClearText(sOstatok) });
+            aRowData.push({ id_row:v.id, column:confIndex.sostav, text:fClearText(v.sostav) });
+            aRowData.push({ id_row:v.id, column:confIndex.description, text:fClearText(v.description) });
+
         });
 
 
         console.log('iter:', iIter, ' - ', idLastRow);
         iIter++;
 
-        await runInsertLetter(aRowData);
+        const aInsertedWord = await runInsertWord(aRowData)
+
+        await runInsertLetter(aInsertedWord);
+
+        await runInsertIxWord(aRowData);
 
         const aRowSourceInsert = aRow.map(v => {
             let aOstatok = ixRowOstatokBy1C[v.kod_1c];
@@ -152,28 +164,92 @@ async function runInsert(){
     console.log('END');
 }
 
-async function  runInsertLetter(aRowData:{
-    id_row: number;
-    text: string;
-}[]){
+function fClearText(text:string) : string{
+    return text.replace(/[,."'!&?]/g,' ').replace(/\s+/g,' ').toLowerCase();
+}
 
-    // console.log('aRowData:',aRowData);
+/** Вставка индекса слов */
+async function runInsertIxWord(aRowData:{
+    id_row: number; // ID строки
+    column:number; // ID колонки
+    text: string; // Текст
+}[]): Promise<void>{
 
-    // await db('word').truncate();
-    // await db('letter').truncate();
-    
+    let aIxWord:{id_row:number; column:number; id_word:number; cnt:number}[] = [];
 
-    let asWordPool:{id_row:number, id_word:number, word:string}[] = [];
+    for (let i = 0; i < aRowData.length; i++) {
+        const vRowData = aRowData[i];
+        const asWord = vRowData.text.split(' ');
 
+        // console.log('asWord1:',asWord);
 
-    let aIxWord = [];
+        const asWordClean:string[] = [];
+
+        const ixWordCounter:Record<string, number> = {};
+        for (let j = 0; j < asWord.length; j++) {
+            const sWord = String(asWord[j]).trim();
+
+            if(sWord.length > 1){
+                asWordClean.push(sWord);
+
+                if(!ixWordCounter[sWord]){
+                    ixWordCounter[sWord] = 1;
+                } else {
+                    ixWordCounter[sWord]++;
+                }
+
+            }
+        }
+
+        // console.log('asWordClean:',asWordClean);
+
+        let aRowWord = (await db('word')
+            .whereIn('word', asWordClean)
+            .select()
+        );
+
+        // console.log('aRowWord:',aRowWord);
+
+        const ixWordDict = _.keyBy(aRowWord, 'word')
+        const akWordDict = Object.keys(ixWordDict);
+
+        for (let j = 0; j < akWordDict.length; j++) {
+            const sWord = akWordDict[j];
+            const vWord = ixWordDict[sWord];
+            const idWord = vWord.id;
+
+            aIxWord.push({id_row:vRowData.id_row, column:vRowData.column, id_word:idWord, cnt:ixWordCounter[sWord]})
+        }
+    }
+
+    const aaIxWordChunk = _.chunk(aIxWord, 1000);
+    for (let i = 0; i < aaIxWordChunk.length; i++) {
+        const aIxWordChunk = aaIxWordChunk[i];
+        (await db('ix_tovar')
+            .insert(aIxWordChunk)
+        );
+    }
+
+    return null;
+}
+
+/** Вставка уникальных слов */
+async function runInsertWord(aRowData:{
+    id_row: number; // ID строки
+    text: string; // Текст
+}[]): Promise<{
+    id_word:number;
+    word:string;
+}[]>{ // ID WORD
+
+    let asWordPool:{id_word:number, word:string}[] = [];
 
     for (let i = 0; i < aRowData.length; i++) {
         const vRowData = aRowData[i];
         const asWord = vRowData.text.split(' ');
 
         for (let j = 0; j < asWord.length; j++) {
-            const sWord = String(asWord[j]).trim().toLowerCase().replace(',','');
+            const sWord = String(asWord[j]).trim();
 
             let idWord = 0;
             // Проверям слово в базе
@@ -190,38 +266,36 @@ async function  runInsertLetter(aRowData:{
                     console.log('===>',idWord, sWord);
 
                     asWordPool.push({
-                        id_row: vRowData.id_row, id_word:idWord, word:sWord
+                        id_word:idWord, word:sWord
                     });
-                } else {
-                    const oneWord = await fOneWord(sWord);
-                    
-                    if(oneWord){
-                        idWord = oneWord.id;
-                    }
                 }
-            }
-
-            // console.log('===>',idWord, sWord);
-
-            // Индекс слов
-            if(idWord && sWord.length > 1){
-                aIxWord.push({id_row:vRowData.id_row, id_word:idWord, cnt:sWord.length})
             }
             
         }
     }
+
+    return asWordPool;
+}
+
+/** Вставка индекса букв */
+async function  runInsertLetter(aRowData:{
+    id_word: number;
+    word: string;
+}[]){
+
+    // console.log('aRowData:',aRowData);
+
+    // await db('word').truncate();
+    // await db('letter').truncate();
+    
+
     const aInsert:any[] = [];
 
     
-    for (let i = 0; i < asWordPool.length; i++) {
-        const vWordPool = asWordPool[i];
-        const sWord = asWordPool[i].word;
-        const idWord = asWordPool[i].id_word;
+    for (let i = 0; i < aRowData.length; i++) {
+        const sWord = aRowData[i].word;
+        const idWord = aRowData[i].id_word;
 
-        // console.log(sWord);
-
-        
-        
         for (let j = 0; j < sWord.length; j++) {
             aInsert.push({id_word:idWord, code:sWord.charCodeAt(j)})
 
@@ -249,14 +323,6 @@ async function  runInsertLetter(aRowData:{
         
     }
 
-    const aaIxWordChunk = _.chunk(aIxWord, 1000);
-    for (let i = 0; i < aaIxWordChunk.length; i++) {
-        const aIxWordChunk = aaIxWordChunk[i];
-        (await db('ix_tovar')
-            .insert(aIxWordChunk)
-        )[0];
-    }
-    
     // let lastLetter = 0;
     // let aDif = [];
     // for (let i = 0; i < a.length; i++) {
