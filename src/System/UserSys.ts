@@ -5,13 +5,13 @@ import { MainRequest } from './MainRequest';
 
 
 // SQL Запросы
-import {UserSQL} from '../Infrastructure/SQL/Repository/UserSQL';
+import {UserSQL} from '../Infrastructure/SQL/Repository/WordSQL';
 import {UserTokenSQL} from '../Infrastructure/SQL/Repository/UserTokenSQL';
 import {UserGroupSQL} from '../Infrastructure/SQL/Repository/UserGroupSQL';
 import {AccessGroupSQL} from '../Infrastructure/SQL/Repository/AccessGroupSQL';
 import {CtrlAccessSQL} from '../Infrastructure/SQL/Repository/CtrlAccessSQL';
 import { ErrorSys } from '@a-a-game-studio/aa-components/lib';
-import { UserI } from '../Infrastructure/SQL/Entity/UserE';
+import { UserI } from '../Infrastructure/SQL/Entity/WordE';
 
 /**
  * Клас который глобально знает все данные пользователя

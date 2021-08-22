@@ -3,7 +3,7 @@
 import BaseM from '../../../System/BaseM';
 
 // Классы SQL Запросов
-import { UserSQL } from '../../../Infrastructure/SQL/Repository/UserSQL';
+import { UserSQL } from '../../../Infrastructure/SQL/Repository/WordSQL';
 import { UserTokenSQL } from '../../../Infrastructure/SQL/Repository/UserTokenSQL';
 import { UserSMSCodeSQL } from '../../../Infrastructure/SQL/Repository/UserSMSCodeSQL';
 import { UserGroupSQL } from '../../../Infrastructure/SQL/Repository/UserGroupSQL';
@@ -12,7 +12,7 @@ import { UserGroupSQL } from '../../../Infrastructure/SQL/Repository/UserGroupSQ
 import * as V from '../Validator/UserV';
 
 // Интерфейсы и сущьности
-import { UserI } from '../../../Infrastructure/SQL/Entity/UserE';
+import { UserI } from '../../../Infrastructure/SQL/Entity/WordE';
 
 /**
  * Бизнес модель пользователя суда мы нас проксирует контроллер 1 url = 1 метод модели

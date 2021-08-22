@@ -1,9 +1,8 @@
 const express = require('express');
 
 // Подключение системных классов
-import BaseCtrl from '../../../System/BaseCtrl';
-import * as System from '../../../Namespace/System'
-
+import BaseCtrl from '../../System/BaseCtrl';
+import { MainRequest } from '../../System/MainRequest';
 var router = express.Router();
 
 /**
@@ -17,7 +16,7 @@ class IndexController extends BaseCtrl {
 /**
  * Проверка на работоспособность
  */
-router.post('/aa/', function (req: System.MainRequest, res: any, next: any) {
+router.post('/', function (req: MainRequest, res: any, next: any) {
     let self = new IndexController(req, res);
     res.send('POST API сервер работает');
 });
@@ -25,7 +24,7 @@ router.post('/aa/', function (req: System.MainRequest, res: any, next: any) {
 /**
  * Проверка на работоспособность
  */
-router.get('/aa/', function (req: System.MainRequest, res: any, next: any) {
+router.get('/', function (req: MainRequest, res: any, next: any) {
     let self = new IndexController(req, res);
     res.send('API сервер работает');
 });

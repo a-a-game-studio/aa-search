@@ -3,7 +3,7 @@
 import BaseM from '../../System/BaseM';
 
 // Классы SQL Запросов
-import { UserSQL } from '../../Infrastructure/SQL/Repository/UserSQL';
+import { UserSQL } from '../../Infrastructure/SQL/Repository/WordSQL';
 
 // Роутинг
 import {LoginR} from './LoginR';

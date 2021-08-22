@@ -1,7 +1,7 @@
 import * as AAClasses from '@a-a-game-studio/aa-classes/lib';
 import { MainRequest, ConfI, TError } from './MainRequest';
 import { Seo } from './Seo';
-import { UserI } from '../Infrastructure/SQL/Entity/UserE';
+import { UserI } from '../Infrastructure/SQL/Entity/WordE';
 import * as express from 'express';
 
 /**

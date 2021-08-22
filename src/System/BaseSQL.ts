@@ -9,6 +9,7 @@ import { UserSys } from './UserSys';
 import { KnexSys } from './KnexSys';
 import { CacheSys } from './CacheSys';
 import { LogicSys } from './LogicSys';
+import Knex from 'knex';
 
 
 /**
@@ -16,7 +17,7 @@ import { LogicSys } from './LogicSys';
  */
 export default class BaseSQL {
 
-    protected db: any;
+    protected db: Knex;
     protected redisSys: RedisSys;
 
     protected modelValidatorSys:  Components.ModelValidatorSys;

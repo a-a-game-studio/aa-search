@@ -1,6 +1,6 @@
 
 
-import { UserI } from '../../Infrastructure/SQL/Entity/UserE';
+import { UserI } from '../../Infrastructure/SQL/Entity/WordE';
 
 /** Модуль логина/авторизации */
 export namespace LoginR {

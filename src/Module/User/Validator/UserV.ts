@@ -1,6 +1,6 @@
 
 import * as Components from '@a-a-game-studio/aa-components/lib';
-import { UserI } from '../../../Infrastructure/SQL/Entity/UserE';
+import { UserI } from '../../../Infrastructure/SQL/Entity/WordE';
 import * as System from '../../../Namespace/System';
 
 // =======================================================
