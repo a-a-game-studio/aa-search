@@ -9,11 +9,18 @@ import { initMainRequest } from '../System/MainRequest';
 import { cache } from 'sharp';
 import { QuerySys } from '@a-a-game-studio/aa-front';
 
+import https from 'https'
+
+const httpsAgent = new https.Agent({
+    rejectUnauthorized: false, // (NOTE: this will disable client verification)
+})
+
 // CORE API
 export const apiSearchEngine = {
-    baseURL:'127.0.0.1:3005',
-    timeout:30000,
+    baseURL:'http://127.0.0.1:3007',
+    timeout:5000,
     withCredentials: true,
+    httpsAgent
 }
 
 const mysql = { // Knex mysql
@@ -96,15 +103,14 @@ async function runInsert(){
     
     
 
-    let aRowData:any[] = [];
+    let aRow:any[] = [];
     let iIter = 0;
     let idLastRow = 0;
     do {
-        aRowData = [];
 
-        let aRow = (await dbTovar('tovar')
+        aRow = (await dbTovar('tovar')
             .where('id', '>', idLastRow)
-            .limit(100)
+            .limit(10)
             .select()
         );
 
@@ -155,7 +161,7 @@ async function runInsert(){
         await faSend({table:'tovar', list_row:aRowSourceInsert});
         
 
-    } while( aRowData.length > 0 )
+    } while( aRow.length > 0 )
 
     console.log('END');
 }
@@ -171,6 +177,8 @@ async function faSend(data:{table:string, list_row:any[]}){
     querySearchSys.fActionErr((e:any) => {
         console.log('Произошла ошибка', e)
     });
+
+    console.log('Отправка данных');
 
     await querySearchSys.faSend('/engine/insert', data);
 }

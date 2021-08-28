@@ -29,4 +29,4 @@ router.get('/', function (req: MainRequest, res: any, next: any) {
     res.send('API сервер работает');
 });
 
-export { router };
+export { router as gIndexCtrl };

@@ -1,7 +1,6 @@
 import * as AAClasses from '@a-a-game-studio/aa-classes/lib';
 import { MainRequest, ConfI, TError } from './MainRequest';
 import { Seo } from './Seo';
-import { UserI } from '../Infrastructure/SQL/Entity/WordE';
 import * as express from 'express';
 
 /**
@@ -112,7 +111,7 @@ export interface ResponseI {
 	route: string, //Данные про путь (роут)
 	data: any, // данные под конкретную стр
 	config: ConfI, // общий конфиг всего
-	userInfo: UserI; // данные по юзеру
+	userInfo: any; // данные по юзеру
 	bAuth: boolean; // признак автризации
 	bIsAdmin: boolean; // признак админа
 	layout?: (boolean | string);
@@ -134,7 +133,7 @@ export const fResponse = (req: MainRequest, data: any): ResponseI => {
 		route: fGetRoutePath(req), //Данные про путь (роут)
 		data: data, // данные под конкретную стр
 		config: req.conf, // общий конфиг всего
-		userInfo: req.sys.userSys.userInfo, // данные по юзеру
+		userInfo: {}, // данные по юзеру
 		bAuth: req.sys.bAuth, // признак автризации
 		bIsAdmin: req.sys.userSys.isAdmin(), // признак админа
 		bIsProd: req.conf.common.env == 'prod', // признак модератора

@@ -6,6 +6,7 @@ import * as AAComponents from '@a-a-game-studio/aa-components/lib';
 export default function InitBaseSysMiddleware(req: MainRequest, response: any, next: any) {
 
     req.sys = {
+        bCache:false,
         token: '',
         errorSys: null,
         userSys: null,

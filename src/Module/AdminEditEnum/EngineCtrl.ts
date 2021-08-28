@@ -18,7 +18,7 @@ const router = express.Router();
  */
 class Ctrl extends BaseCtrl {
 
-    public vInsertM: InsertM;
+    public insertM: InsertM;
 
     /**
      * Конструктор
@@ -29,18 +29,8 @@ class Ctrl extends BaseCtrl {
     public async faInit() {
         
         // Инициализация бизнес моделей
-        this.vInsertM = new InsertM(this.req);
+        this.insertM = new InsertM(this.req);
 
-        //==================================================
-
-        // Проверка авторизации
-        await this.userSys.isAuth();
-
-        // Проверка права доступа на модуль
-        await this.userSys.isAccessCtrl('admin-edit-user');
-
-        // Проверка являетесь ли вы администратором
-        this.userSys.isAdmin();
     }
 }
 
@@ -48,9 +38,9 @@ router.post(R.insert.route, async (req: MainRequest, res: any, next: any) => {
     const ctrl = new Ctrl(req, res);
     await ctrl.faInit();
     await ctrl.faAction('INIT', () => {
-        return ctrl.adminEditUserM.insert(req.body);
+        return ctrl.insertM.insert(req.body);
     })
 });
 
 
-export { router };
+export { router as gEngineCtrl } ;

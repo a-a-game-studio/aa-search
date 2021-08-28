@@ -18,11 +18,16 @@ export namespace EngineV {
         // ---------------------------------------
 
         // Сколько записей получать
-        rules.set(rules.rule('id_enum')
-            .type(Components.ModelRulesT.int)
+        rules.set(rules.rule('table')
+            .type(Components.ModelRulesT.text)
             .require()
-            .moreOrEq(0)
-            .errorEx('id_enum', 'id_enum')
+            .errorEx('table', 'table')
+        );
+
+        rules.set(rules.rule('list_row')
+            .type(Components.ModelRulesT.array)
+            .require()
+            .errorEx('list_row', 'list_row')
         );
 
         // ---------------------------------------

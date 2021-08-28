@@ -32,56 +32,58 @@ app.use(function InitConfigMiddleware(req: MainRequest, res: any, next: any) {
 // Подключение middleware
 // =========================
 
-import * as middleware from './Namespace/Middleware';
+import InitBaseSysMiddleware from './Middleware/InitBaseSysMiddleware';
+import ConfigMiddleware from './Middleware/ConfigMiddleware';
+import { SharedMemMiddleware } from './Middleware/SharedMemMiddleware';
+import MySqlMiddleware from './Middleware/MySqlMiddleware';
+import InitSubSysMiddleware from './Middleware/InitSubSysMiddleware';
+import RequestSysMiddleware from './Middleware/RequestSysMiddleware';
+import ResponseSysMiddleware from './Middleware/ResponseSysMiddleware';
+import AuthSysMiddleware from './Middleware/AuthSysMiddleware';
+import { gEngineCtrl } from './Module/AdminEditEnum/EngineCtrl';
+import { gIndexCtrl } from './Module/Common/IndexCtrl';
+
 
 /* Инициализация базовых систем */
-app.use(middleware.InitBaseSysMiddleware);
+app.use(InitBaseSysMiddleware);
 
 /** Конфигурирование приложения */
-app.use(middleware.ConfigMiddleware);
+app.use(ConfigMiddleware);
 
 // кэш
 const sharedMem = {};
-app.use(middleware.SharedMemMiddleware(sharedMem));
+app.use(SharedMemMiddleware(sharedMem));
 
 // база
-app.use(middleware.MySqlMiddleware);
+app.use(MySqlMiddleware);
 
 /** Инициализация подсистем */
-app.use(middleware.InitSubSysMiddleware);
+app.use(InitSubSysMiddleware);
 
 /* запрос */
-app.use(middleware.RequestSysMiddleware);
+app.use(RequestSysMiddleware);
 
 /* ответ */
-app.use(middleware.ResponseSysMiddleware);
+app.use(ResponseSysMiddleware);
 
 /* проверка авторизации на уровне приложения */
-app.use(middleware.AuthSysMiddleware);
+app.use(AuthSysMiddleware);
 
 // =========================
 // Подключение контроллеров
 // =========================
 
-import * as controller from './Namespace/Controller'
+
+
 
 // Базовый модуль
-app.use(controller.IndexController.router);
+app.use(gIndexCtrl);
 
 // Модуль для пользователей
 // app.use(controller.UserController.router);
 
-// Модуль для login
-app.use(controller.LoginCtrl.router);
-
 // Модуль для редактирования пользователей администратором
-app.use(controller.AdminEditUserCtrl.router);
-
-// Модуль для редактирования групп администратором
-app.use(controller.AdminEditGroupCtrl.router);
-
-// Модуль для редактирования ENUM дерева типов
-app.use(controller.AdminEditEnumCtrl.router);
+app.use(gEngineCtrl);
 
 
 console.log('server start at http://localhost:'+config.common.port);

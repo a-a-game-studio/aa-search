@@ -23,12 +23,19 @@ const confIndex:Record<string, number> = {
     'ostatok':4
 }
 
+const confIndexType:Record<string, string> = {
+    'name':'string',
+    'sostav':'text',
+    'description':'text',
+    'ostatok':'text'
+}
+
 
 /**
  * Бизнес модель пользователя суда мы нас проксирует контроллер 1 url = 1 метод модели
  * Внутри метода делаем нужную бизнес логику
  */
-export class EngineM extends BaseM
+export class InsertM extends BaseM
 {
 
     private wordSQL: WordSQL;
@@ -57,8 +64,26 @@ export class EngineM extends BaseM
         for (let i = 0; i < validData.list_row.length; i++) {
             const vRow = validData.list_row[i];
 
+            const idRow = Number(vRow.id);
+
             _.forEach(vRow, (v:any,k:string) => {
-                aRowData.push({ id_row:v.id, column:confIndex[k], text:this.engineS.fClearText(v.name) });
+
+                if(confIndexType[k] == 'bool'){
+                    aRowData.push({ id_row: idRow, column:confIndex[k], text: Boolean(v) });
+                }
+
+                if(confIndexType[k] == 'int'){
+                    aRowData.push({ id_row: idRow, column:confIndex[k], text: Number(v) });
+                }
+
+                if(confIndexType[k] == 'str'){
+                    aRowData.push({ id_row: idRow, column:confIndex[k], text: this.engineS.fClearText(v) });
+                }
+
+                if(confIndexType[k] == 'text'){
+                    aRowData.push({ id_row: idRow, column:confIndex[k], text: this.engineS.fClearText(v) });
+                }
+
             });
         }
 

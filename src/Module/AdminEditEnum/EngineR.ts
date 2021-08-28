@@ -15,7 +15,7 @@ export namespace EngineR {
         /** Параметры api запроса */
         export interface RequestI {
             table:string; // таблицы
-            list_row:Object[]; // список строк
+            list_row:any[]; // список строк
         }
 
         /** Параметры api ответа */
