@@ -1,6 +1,6 @@
 var fs = require('fs');
 import sharp = require('sharp');
-import { BaseM } from '../Namespace/System';
+import BaseM from '../System/BaseM';
 const imgQuality = 80; // качество сжатия
 
 /**

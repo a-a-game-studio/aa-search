@@ -49,6 +49,7 @@
   "dependencies": {
     "@a-a-game-studio/aa-classes": "^1.0.12",
     "@a-a-game-studio/aa-components": "^1.0.34",
+    "@a-a-game-studio/aa-front": "^0.1.27",
     "@a-a-game-studio/aa-redis-sys": "^1.0.2",
     "@types/amqplib": "^0.5.13",
     "@types/express": "^4.17.6",

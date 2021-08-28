@@ -7,6 +7,7 @@
 import { MainRequest } from '../../../System/MainRequest';
 import BaseSQL from '../../../System/BaseSQL';
 import { LetterE, LetterI } from '../Entity/LetterE';
+import _ from 'lodash';
 
 
 /**
@@ -60,6 +61,31 @@ export class LetterSQL extends BaseSQL
         }
 
         return idLetter;
+    }
+
+    /**
+     * Получить список слов
+     */
+     public async packInsert(aLetter:LetterI[]): Promise<number>{
+
+        let idWord = 0;
+
+        try{
+            const aaInsertChunk = _.chunk(aLetter, 1000);
+            for (let i = 0; i < aaInsertChunk.length; i++) {
+                const aInsertChunk = aaInsertChunk[i];
+
+                (await this.db(LetterE.NAME)
+                    .insert(aInsertChunk)
+                );
+                
+            }
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'WordSQL.list', 'Не удалось получить список');
+        }
+
+        return idWord;
     }
 
 

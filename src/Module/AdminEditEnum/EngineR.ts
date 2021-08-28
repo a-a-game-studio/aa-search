@@ -7,13 +7,15 @@ export namespace EngineR {
 
     // =======================================================
     /** Получить дерево типов */
-    export namespace getEnumTreeType {
+    export namespace insert {
 
         /** APIURL */
         export const route = '/engine/insert';
 
         /** Параметры api запроса */
         export interface RequestI {
+            table:string; // таблицы
+            list_row:Object[]; // список строк
         }
 
         /** Параметры api ответа */
