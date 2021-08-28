@@ -40,7 +40,7 @@ import InitSubSysMiddleware from './Middleware/InitSubSysMiddleware';
 import RequestSysMiddleware from './Middleware/RequestSysMiddleware';
 import ResponseSysMiddleware from './Middleware/ResponseSysMiddleware';
 import AuthSysMiddleware from './Middleware/AuthSysMiddleware';
-import { gEngineCtrl } from './Module/AdminEditEnum/EngineCtrl';
+import { gEngineCtrl } from './Module/Engine/EngineCtrl';
 import { gIndexCtrl } from './Module/Common/IndexCtrl';
 
 
