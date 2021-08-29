@@ -107,4 +107,41 @@ export class IxSQL extends BaseSQL
         return idIx;
     }
 
+    /**
+     * Удалить таблицу индексов
+     */
+    public async dropTable(sTable:string): Promise<boolean>{
+
+        let listRowColumn = null;
+        try{
+            listRowColumn = (await this.db.schema
+                .dropTable(IxE.NAME+sTable)
+            );
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'IxSQL.dropTable', 'Не удалось удалить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
+
+    /**
+     * Очистить таблицу индексов
+     */
+     public async truncateTable(sTable:string): Promise<boolean>{
+
+        let listRowColumn = null;
+        try{
+            listRowColumn = (await this.db(IxE.NAME+sTable)
+                .truncate()
+            );
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'IxSQL.truncateTable', 'Не удалось очистить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
 }

@@ -25,9 +25,9 @@ export class TableSQL extends BaseSQL
     public async checkTable(sTable:string): Promise<boolean>{
         let oneTable = null;
         try{
-            oneTable = await this.cacheSys.autoCache(`fCheckTable(${sTable})`, 3600, async () => {
+            oneTable = await this.cacheSys.autoCache(`checkTable(${sTable})`, 3600, async () => {
                 oneTable = (await this.db(TableE.NAME)
-                    .where({table:sTable})
+                    .where({name:sTable})
                     .limit(1)
                     .select()
                 )[0];
@@ -35,21 +35,21 @@ export class TableSQL extends BaseSQL
                 return oneTable;
             })
         } catch(e){
-            console.log('!!!ERROR>fCheckTable>', e);
+            this.errorSys.errorEx(e, 'TableSQL.checkTable', 'Не удалось получить список');
         }
 
         return oneTable ? true : false;
     }
 
     // Получить данные по слову в базе
-    public async oneByName(sTable:string): Promise<any>{
+    public async oneByName(sTable:string): Promise<TableI>{
         let oneTable = null;
         try{
 
-            oneTable = await this.cacheSys.autoCache(`fOneTable(${sTable})`, 3600, async () => {
+            oneTable = await this.cacheSys.autoCache(`oneByName(${sTable})`, 3600, async () => {
 
                 oneTable = (await this.db(TableE.NAME)
-                    .where({table:sTable})
+                    .where({name:sTable})
                     .limit(1)
                     .select()
                 )[0]
@@ -57,7 +57,7 @@ export class TableSQL extends BaseSQL
                 return oneTable;
             });
         } catch(e){
-            console.log('!!!ERROR>fOneTable>', e);
+            this.errorSys.errorEx(e, 'TableSQL.oneByName', 'Не удалось получить список');
         }
 
         return oneTable;

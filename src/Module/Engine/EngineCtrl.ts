@@ -9,6 +9,7 @@ import BaseCtrl from '../../System/BaseCtrl'
 import {EngineR} from './EngineR'
 import R = EngineR;
 import { MainRequest } from '../../System/MainRequest';
+import { SchemaM } from './Model/SchemaM';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ const router = express.Router();
 class Ctrl extends BaseCtrl {
 
     public insertM: InsertM;
+    public schemaM: SchemaM;
 
     /**
      * Конструктор
@@ -30,6 +32,7 @@ class Ctrl extends BaseCtrl {
         
         // Инициализация бизнес моделей
         this.insertM = new InsertM(this.req);
+        this.schemaM = new SchemaM(this.req);
 
     }
 }
@@ -37,8 +40,32 @@ class Ctrl extends BaseCtrl {
 router.post(R.insert.route, async (req: MainRequest, res: any, next: any) => {
     const ctrl = new Ctrl(req, res);
     await ctrl.faInit();
-    await ctrl.faAction('INIT', () => {
+    await ctrl.faAction('Вставка данных', () => {
         return ctrl.insertM.insert(req.body);
+    })
+});
+
+router.post(R.createTable.route, async (req: MainRequest, res: any, next: any) => {
+    const ctrl = new Ctrl(req, res);
+    await ctrl.faInit();
+    await ctrl.faAction('Создать таблицы', () => {
+        return ctrl.schemaM.createTable(req.body);
+    })
+});
+
+router.post(R.delTable.route, async (req: MainRequest, res: any, next: any) => {
+    const ctrl = new Ctrl(req, res);
+    await ctrl.faInit();
+    await ctrl.faAction('Удаление таблицы', () => {
+        return ctrl.schemaM.delTable(req.body);
+    })
+});
+
+router.post(R.clearTable.route, async (req: MainRequest, res: any, next: any) => {
+    const ctrl = new Ctrl(req, res);
+    await ctrl.faInit();
+    await ctrl.faAction('Очистка таблицы', () => {
+        return ctrl.schemaM.clearTable(req.body);
     })
 });
 

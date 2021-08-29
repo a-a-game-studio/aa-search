@@ -107,4 +107,39 @@ export class SourceSQL extends BaseSQL
         return idSource;
     }
 
+    /**
+     * Удалить таблицу индексов
+     */
+     public async dropTable(sTable:string): Promise<boolean>{
+
+        try{
+            (await this.db.schema
+                .dropTable(SourceE.NAME+sTable)
+            );
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'SourceSQL.dropTable', 'Не удалось удалить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
+    /**
+     * Очистить таблицу индексов
+     */
+     public async truncateTable(sTable:string): Promise<boolean>{
+
+        let listRowColumn = null;
+        try{
+            listRowColumn = (await this.db(SourceE.NAME+sTable)
+                .truncate()
+            );
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'IxSQL.truncateTable', 'Не удалось очистить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
 }

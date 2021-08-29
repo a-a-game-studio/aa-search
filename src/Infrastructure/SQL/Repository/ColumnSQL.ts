@@ -10,7 +10,6 @@ import { ColumnE, ColumnI } from '../Entity/ColumnE';
 import _ from 'lodash';
 import { LetterI } from '../Entity/LetterE';
 
-
 /**
  * Здесь методы для SQL запросов
  */
@@ -103,7 +102,7 @@ export class ColumnSQL extends BaseSQL
             );
 
         } catch (e){
-            this.errorSys.errorEx(e, 'ColumnSQL.list', 'Не удалось получить список');
+            this.errorSys.errorEx(e, 'ColumnSQL.insert', 'Не удалось получить список');
         }
 
         return idColumn;
@@ -128,10 +127,30 @@ export class ColumnSQL extends BaseSQL
             );
 
         } catch (e){
-            this.errorSys.errorEx(e, 'ColumnSQL.list', 'Не удалось получить список');
+            this.errorSys.errorEx(e, 'ColumnSQL.update', 'Не удалось получить список');
         }
 
         return idColumn;
+    }
+
+    /**
+     * Удалить колонки по таблице
+     */
+    public async delByTable(idTable:number): Promise<boolean>{
+
+        let listRowColumn = null;
+
+        try{
+            listRowColumn = (await this.db(ColumnE.NAME)
+                .where('id_table', idTable)
+                .del()
+            );
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'ColumnSQL.delByTable', 'Не удалось удалить колонки');
+        }
+        
+        return this.errorSys.isOk();
     }
 
 }

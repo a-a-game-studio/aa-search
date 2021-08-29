@@ -16,6 +16,7 @@ import { EngineS } from '../../../Service/EngineS';
 import { TableSQL } from '../../../Infrastructure/SQL/Repository/TableSQL';
 import { ColumnSQL } from '../../../Infrastructure/SQL/Repository/ColumnSQL';
 import { ColumnT } from '../../../Infrastructure/SQL/Entity/ColumnE';
+import { IxSQL } from '../../../Infrastructure/SQL/Repository/IxSQL';
 
 /**
  * Бизнес модель пользователя суда мы нас проксирует контроллер 1 url = 1 метод модели
@@ -25,12 +26,16 @@ export class SchemaM extends BaseM
 {
     private tableSQL: TableSQL = null;
     private columnSQL: ColumnSQL = null;
+    private ixSQL: IxSQL = null;
+    private sourceSQL: SourceSQL = null;
 
     constructor(req:any) {
         super(req);
 
         this.tableSQL = new TableSQL(req);
         this.columnSQL = new ColumnSQL(req);
+        this.ixSQL = new IxSQL(req);
+        this.sourceSQL = new SourceSQL(req);
     }
 
 
@@ -51,7 +56,7 @@ export class SchemaM extends BaseM
 
                 await this.columnSQL.insert({
                     id_table: idTable,
-                    name: validData.table,
+                    name: vColumn.name,
                     type: ColumnT[vColumn.type]
                 });
             }
@@ -75,7 +80,26 @@ export class SchemaM extends BaseM
 
         const validData = this.logicSys.fValidData(V.delTable(), data);
 
+        const vTable = await this.tableSQL.oneByName(validData.table);
         await this.tableSQL.del(validData.table);
+        await this.columnSQL.delByTable(vTable.id);
+
+        await this.ixSQL.dropTable(validData.table);
+        await this.sourceSQL.dropTable(validData.table);
+
+        return null;
+    }
+
+    /**
+     * Получить стартовые данные для работы страницы
+     * @param data 
+     */
+    public async clearTable(data:R.clearTable.RequestI): Promise<R.clearTable.ResponseI> {
+
+        const validData = this.logicSys.fValidData(V.clearTable(), data);
+
+        await this.ixSQL.truncateTable(validData.table);
+        await this.sourceSQL.truncateTable(validData.table);
 
         return null;
     }

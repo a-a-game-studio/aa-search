@@ -10,7 +10,9 @@ export enum ColumnT {
     date = 5,
     datetime = 6,
     time = 7,
-    decimal = 8
+    decimal = 8,
+    uid = 9,
+    json = 10
 }
 
 /**
@@ -35,7 +37,7 @@ export class ColumnE
             .typeInt()
             .require()
             .more(0)
-            .errorEx(ColumnE.NAME+'.name', 'name - неверный формат')
+            .errorEx(ColumnE.NAME+'.id_table', 'id_table - неверный формат')
         );
 
         rules.set(rules.rule('name')
@@ -48,7 +50,7 @@ export class ColumnE
             .typeEnum()
             .if(Object.values(ColumnT))
             .require()
-            .errorEx(ColumnE.NAME+'.name', 'name - неверный формат')
+            .errorEx(ColumnE.NAME+'.type', 'type - неверный формат')
         );
 
         return rules;
