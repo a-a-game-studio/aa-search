@@ -48,11 +48,14 @@ export class SchemaM extends BaseM
         const validData = this.logicSys.fValidData(V.createTable(), data);
 
         const idTable = await this.tableSQL.insert({name:validData.table});
+        const aColumnNewTable:{name:string; type:ColumnT}[] = [];
 
         for (let i = 0; i < validData.list_column.length; i++) {
             const vColumn = validData.list_column[i];
 
             if(ColumnT[vColumn.type]){
+
+                aColumnNewTable.push({name:vColumn.name,type:ColumnT[vColumn.type]})
 
                 await this.columnSQL.insert({
                     id_table: idTable,
@@ -61,6 +64,12 @@ export class SchemaM extends BaseM
                 });
             }
         }
+
+        // Создаем индексы для таблицы
+        await this.ixSQL.createTable(validData.table);
+
+        // Создаем исходники таблицы
+        await this.sourceSQL.createTable(validData.table, aColumnNewTable);
 
         let out:R.createTable.ResponseI = null;
         await this.logicSys.ifOk('Формирование ответа', async () => {

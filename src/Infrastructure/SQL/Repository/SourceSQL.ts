@@ -8,6 +8,8 @@ import { MainRequest } from '../../../System/MainRequest';
 import BaseSQL from '../../../System/BaseSQL';
 import { SourceE, SourceI } from '../Entity/SourceE';
 import _ from 'lodash';
+import { ColumnT } from '../Entity/ColumnE';
+import { IxE } from '../Entity/IxE';
 
 /**
  * Здесь методы для SQL запросов
@@ -113,9 +115,16 @@ export class SourceSQL extends BaseSQL
      public async dropTable(sTable:string): Promise<boolean>{
 
         try{
-            (await this.db.schema
-                .dropTable(SourceE.NAME+sTable)
-            );
+            const isExistTable = await this.db.schema.hasTable(SourceE.NAME+sTable);
+            if( isExistTable ){
+
+                (await this.db.schema
+                    .dropTable(SourceE.NAME+sTable)
+                );
+            } else {
+                this.errorSys.warning('SourceSQL.dropTable', sTable+' - Таблица не существует');
+            }
+
 
         } catch (e){
             this.errorSys.errorEx(e, 'SourceSQL.dropTable', 'Не удалось удалить таблицу');
@@ -137,6 +146,74 @@ export class SourceSQL extends BaseSQL
 
         } catch (e){
             this.errorSys.errorEx(e, 'IxSQL.truncateTable', 'Не удалось очистить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
+    /**
+     * Очистить таблицу индексов
+     */
+     public async createTable(sTable:string, aColumn:{name:string;type:ColumnT}[]): Promise<boolean>{
+
+        let listRowColumn = null;
+        try{
+            const isExistTable = await this.db.schema.hasTable(SourceE.NAME+sTable);
+            if( !isExistTable ){
+
+                listRowColumn = (await this.db.schema.createTable(SourceE.NAME+sTable, (t)=>{
+                    t.bigIncrements();
+                    
+                    for (let i = 0; i < aColumn.length; i++) {
+                        const vColumn = aColumn[i];
+            
+                        if(vColumn.type == ColumnT.bool){
+                            t.boolean(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.date){
+                            t.date(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.datetime){
+                            t.dateTime(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.decimal){
+                            t.decimal(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.int){
+                            t.integer(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.json){
+                            t.json(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.str){
+                            t.string(vColumn.name, 100);
+                        }
+
+                        if(vColumn.type == ColumnT.text){
+                            t.text(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.time){
+                            t.time(vColumn.name);
+                        }
+
+                        if(vColumn.type == ColumnT.uid){
+                            t.uuid(vColumn.name);
+                        }
+                    }
+                }));
+            } else {
+                this.errorSys.warning('SourceSQL.createTable', sTable+' - Таблица уже существует');
+            }
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'SourceSQL.createTable', 'Не удалось очистить таблицу');
         }
         
         return this.errorSys.isOk();

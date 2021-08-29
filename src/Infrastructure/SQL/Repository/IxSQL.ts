@@ -8,6 +8,7 @@ import { MainRequest } from '../../../System/MainRequest';
 import BaseSQL from '../../../System/BaseSQL';
 import { IxE, IxI } from '../Entity/IxE';
 import _ from 'lodash';
+import { ColumnT } from '../Entity/ColumnE';
 
 
 /**
@@ -114,9 +115,14 @@ export class IxSQL extends BaseSQL
 
         let listRowColumn = null;
         try{
-            listRowColumn = (await this.db.schema
-                .dropTable(IxE.NAME+sTable)
-            );
+            const isExistTable = await this.db.schema.hasTable(IxE.NAME+sTable);
+            if( isExistTable ){
+                listRowColumn = (await this.db.schema
+                    .dropTable(IxE.NAME+sTable)
+                );
+            } else {
+                this.errorSys.warning('IxSQL.dropTable', sTable+' - Таблица не существует');
+            }
 
         } catch (e){
             this.errorSys.errorEx(e, 'IxSQL.dropTable', 'Не удалось удалить таблицу');
@@ -139,6 +145,35 @@ export class IxSQL extends BaseSQL
 
         } catch (e){
             this.errorSys.errorEx(e, 'IxSQL.truncateTable', 'Не удалось очистить таблицу');
+        }
+        
+        return this.errorSys.isOk();
+    }
+
+    /**
+     * Очистить таблицу индексов
+     */
+     public async createTable(sTable:string): Promise<boolean>{
+
+        let listRowColumn = null;
+        try{
+            const isExistTable = await this.db.schema.hasTable(IxE.NAME+sTable);
+            if( !isExistTable ){
+                listRowColumn = (await this.db.schema.createTable(IxE.NAME+sTable, (t)=>{
+                    t.bigIncrements();
+                    
+                    t.integer('id_column');
+
+                    t.integer('id_word');
+
+                    t.integer('cnt');
+                }));
+            } else {
+                this.errorSys.warning('IxSQL.createTable', sTable+' - Таблица уже существует');
+            }
+
+        } catch (e){
+            this.errorSys.errorEx(e, 'IxSQL.createTable', 'Не удалось очистить таблицу');
         }
         
         return this.errorSys.isOk();
