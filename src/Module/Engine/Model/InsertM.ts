@@ -13,6 +13,9 @@ import { EngineV as V } from '../EngineV';
 import { SourceSQL } from '../../../Infrastructure/SQL/Repository/SourceSQL';
 import _ from 'lodash';
 import { EngineS } from '../../../Service/EngineS';
+import { ColumnT } from '../../../Infrastructure/SQL/Entity/ColumnE';
+import { ColumnSQL } from '../../../Infrastructure/SQL/Repository/ColumnSQL';
+import { TableSQL } from '../../../Infrastructure/SQL/Repository/TableSQL';
 
 // Интерфейсы и сущьности
 
@@ -41,6 +44,8 @@ export class InsertM extends BaseM
     private wordSQL: WordSQL;
     private sourceSQL: SourceSQL;
     private engineS: EngineS = null;
+    private columnSQL: ColumnSQL = null;
+    private tableSQL: TableSQL = null;
 
     constructor(req:any) {
         super(req);
@@ -48,6 +53,8 @@ export class InsertM extends BaseM
         this.wordSQL = new WordSQL(req);
         this.sourceSQL = new SourceSQL(req);
         this.engineS = new EngineS(req);
+        this.columnSQL = new ColumnSQL(req);
+        this.tableSQL = new TableSQL(req);
     }
 
 
@@ -60,6 +67,13 @@ export class InsertM extends BaseM
         const validData = this.logicSys.fValidData(V.insert(), data);
 
         let aRowData:any[] = [];
+        const vTable = await this.tableSQL.oneByName(validData.table);
+
+        const aColumn = await this.columnSQL.listByTable(vTable.id);
+
+        const ixColumn = _.keyBy(aColumn, 'name');
+
+        // console.log('ixColumn>>>', ixColumn);
 
         for (let i = 0; i < validData.list_row.length; i++) {
             const vRow = validData.list_row[i];
@@ -68,20 +82,39 @@ export class InsertM extends BaseM
 
             _.forEach(vRow, (v:any,k:string) => {
 
-                if(confIndexType[k] == 'bool'){
-                    aRowData.push({ id_row: idRow, column:confIndex[k], text: Boolean(v) });
-                }
+                console.log(k, ixColumn[k]);
+                if(ixColumn[k]){
+                    // if(ixColumn[k].type == ColumnT.bool){
+                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Boolean(v) });
+                    // }
 
-                if(confIndexType[k] == 'int'){
-                    aRowData.push({ id_row: idRow, column:confIndex[k], text: Number(v) });
-                }
+                    // if(ixColumn[k].type == ColumnT.int){
+                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Number(v) });
+                    // }
 
-                if(confIndexType[k] == 'str'){
-                    aRowData.push({ id_row: idRow, column:confIndex[k], text: this.engineS.fClearText(v) });
-                }
+                    if(ixColumn[k].type == ColumnT.str){
+                        aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
+                    }
 
-                if(confIndexType[k] == 'text'){
-                    aRowData.push({ id_row: idRow, column:confIndex[k], text: this.engineS.fClearText(v) });
+                    if(ixColumn[k].type == ColumnT.text){
+                        aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
+                    }
+
+                    // if(ixColumn[k].type == ColumnT.uid){
+                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: v });
+                    // }
+
+                    // if(ixColumn[k].type == ColumnT.decimal){
+                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Number(v) });
+                    // }
+
+                    if(ixColumn[k].type == ColumnT.json){
+                        try {
+                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify(v) });
+                        } catch (e){
+                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify({}) });
+                        }
+                    }
                 }
 
             });

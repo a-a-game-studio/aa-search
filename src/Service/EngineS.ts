@@ -100,11 +100,11 @@ export class EngineS extends BaseM {
     /** Вставка индекса слов */
     public async faInsertIxWord(aRowData:{
         id_row: number; // ID строки
-        column:number; // ID колонки
+        id_column:number; // ID колонки
         text: string; // Текст
     }[]): Promise<void>{
 
-        let aIxWord:{id_row:number; column:number; id_word:number; cnt:number}[] = [];
+        let aIxWord:{id_row:number; id_column:number; id_word:number; cnt:number}[] = [];
 
         for (let i = 0; i < aRowData.length; i++) {
             const vRowData = aRowData[i];
@@ -142,9 +142,11 @@ export class EngineS extends BaseM {
                 const vWord = ixWordDict[sWord];
                 const idWord = vWord.id;
 
-                aIxWord.push({id_row:vRowData.id_row, column:vRowData.column, id_word:idWord, cnt:ixWordCounter[sWord]})
+                aIxWord.push({id_row:vRowData.id_row, id_column:vRowData.id_column, id_word:idWord, cnt:ixWordCounter[sWord]})
             }
         }
+
+        // console.log('aIxWord>>>', aIxWord);
 
         await this.ixSQL.packInsert('tovar', aIxWord);
 

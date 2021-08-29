@@ -80,7 +80,7 @@ export class IxSQL extends BaseSQL
             }
 
         } catch (e){
-            this.errorSys.errorEx(e, 'IxSQL.packInsert', 'Не удалось получить список');
+            this.errorSys.errorEx(e, 'IxSQL.packInsert', 'Не удалось записать индекс слов');
         }
 
         return idIx;
@@ -161,6 +161,8 @@ export class IxSQL extends BaseSQL
             if( !isExistTable ){
                 listRowColumn = (await this.db.schema.createTable(IxE.NAME+sTable, (t)=>{
                     t.bigIncrements();
+
+                    t.integer('id_row');
                     
                     t.integer('id_column');
 

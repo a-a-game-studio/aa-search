@@ -26,7 +26,7 @@ export class ColumnSQL extends BaseSQL
         try{
             oneColumn = await this.cacheSys.autoCache(`fCheckColumn(${sColumn})`, 3600, async () => {
                 oneColumn = (await this.db(ColumnE.NAME)
-                    .where({column:sColumn})
+                    .where({name:sColumn})
                     .limit(1)
                     .select()
                 )[0];
@@ -48,7 +48,7 @@ export class ColumnSQL extends BaseSQL
             oneColumn = await this.cacheSys.autoCache(`fOneColumn(${sColumn})`, 3600, async () => {
 
                 oneColumn = (await this.db(ColumnE.NAME)
-                    .where({column:sColumn})
+                    .where({name:sColumn})
                     .limit(1)
                     .select()
                 )[0]
@@ -69,13 +69,13 @@ export class ColumnSQL extends BaseSQL
     /**
      * Получить список слов
      */
-    public async listByColumnList(asColumnClean:string[]): Promise<ColumnI[]>{
+    public async listByTable(idTable:number): Promise<ColumnI[]>{
 
         let listRowColumn = null;
 
         try{
             listRowColumn = (await this.db(ColumnE.NAME)
-                .whereIn('column', asColumnClean)
+                .where('id_table', idTable)
                 .select()
             );
 
@@ -86,6 +86,7 @@ export class ColumnSQL extends BaseSQL
 
         return listRowColumn;
     }
+
 
     /**
      * Получить список слов

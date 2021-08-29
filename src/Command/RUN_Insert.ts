@@ -125,15 +125,24 @@ async function runInsert(){
         const ixRowOstatokBy1C = _.groupBy(aRowOstatok, 'kod_1c');
         // console.log('ixRowOstatokBy1C:',ixRowOstatokBy1C);
         
+        const aRowInsert:any[] = []
         _.forEach(aRow, (v,k) => {
             let aOstatok = ixRowOstatokBy1C[v.kod_1c];
-            // console.log('aOstatok:', v.kod_1c,aOstatok);
             let sOstatok = '';
             if(aOstatok){
-                // console.log('aOstatok:',aOstatok);
+
                 sOstatok = (aOstatok.map(v1 => ('цвет:'+v1.color + ' ' + 'размер:'+v1.size)) ).join(' ');
-                // console.log('sOstatok:',sOstatok);
+
             }
+
+            aRowInsert.push({
+                id:v.id,
+                kod_1c:v.kod_1c,
+                name:v.name,
+                sostav:v.sostav,
+                description:v.description,
+                ostatok:sOstatok
+            })
 
             if(idLastRow < v.id){
                 idLastRow = v.id;
@@ -145,20 +154,7 @@ async function runInsert(){
         console.log('iter:', iIter, ' - ', idLastRow);
         iIter++;
 
-        const aRowSourceInsert = aRow.map(v => {
-            let aOstatok = ixRowOstatokBy1C[v.kod_1c];
-
-            return {
-                id:v.id,
-                kod_1c:v.kod_1c,
-                name:v.name,
-                sostav:v.sostav,
-                description:v.description,
-                ostatok:JSON.stringify(aOstatok)
-            }
-        });
-
-        await faSend({table:'tovar', list_row:aRowSourceInsert});
+        await faSend({table:'tovar', list_row:aRowInsert});
         
 
     } while( aRow.length > 0 )
@@ -182,6 +178,7 @@ async function faSend(data:{table:string, list_row:any[]}){
 
     await querySearchSys.faSend('/engine/insert', data);
 }
+
 
 runInsert();
 

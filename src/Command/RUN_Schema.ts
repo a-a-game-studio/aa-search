@@ -87,7 +87,7 @@ async function runInsert(){
             { name:'name', type: 'str' },
             { name:'sostav', type: 'text' },
             { name:'description', type: 'text' },
-            { name:'ostatok', type: 'json' },
+            { name:'ostatok', type: 'text' },
         ]
     });
 
