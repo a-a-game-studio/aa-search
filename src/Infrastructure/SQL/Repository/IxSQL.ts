@@ -46,7 +46,7 @@ export class IxSQL extends BaseSQL
     /**
      * Получить список слов
      */
-     public async searchRow(aidWord:number[], ixWordWeight:Record<number, number>, ixColumnWeight:Record<number, number>): Promise<{
+     public async searchRow(sTable:string, aidWord:number[], ixWordWeight:Record<number, number>, ixColumnWeight:Record<number, number>): Promise<{
         cnt_word: number; // Количество слова в строке
         sum_weight: number; // Сумма веса
         word: string; // Слово
@@ -59,7 +59,7 @@ export class IxSQL extends BaseSQL
         const sWordList = aidWord.join(',');
         console.log(ixWordWeight);
 
-        const asIfWordWeight:string[] = [];
+        const asIfWordWeight:string[] = [`ROW(0,0)`];
         let sQueryWordWeight = `VALUES `;
         _.forEach(ixWordWeight, (v,k) => { 
             asIfWordWeight.push(`ROW(${k},${v})`)
@@ -67,7 +67,7 @@ export class IxSQL extends BaseSQL
         sQueryWordWeight += asIfWordWeight.join(',');
         console.log('word - weight:',sQueryWordWeight);
 
-        const asColumnWeight:string[] = [];
+        const asColumnWeight:string[] = [`ROW(0,0)`];
         let sQueryColumnWeight = `VALUES `;
         _.forEach(ixColumnWeight, (v,k) => { 
             asColumnWeight.push(`ROW(${k},${v})`)
@@ -81,11 +81,12 @@ export class IxSQL extends BaseSQL
             try{
                 const sql = `
                     SELECT 
-                        COUNT(*) cnt_word,
+                        COUNT(ix_t.id) cnt_rel,
+                        SUM(ix_t.cnt) sum_hit,
                         SUM( if(q4.id_column, q2.w * q4.w, q2.w) ) sum_weight, 
-                        w.word, ix_t.*
-                    FROM ix_tovar ix_t 
-                    LEFT JOIN word w ON w.id = ix_t.id_word
+                        GROUP_CONCAT(w.word) s_word, ix_t.* -- для отладки
+                    FROM ${IxE.NAME+sTable} ix_t 
+                    LEFT JOIN word w ON w.id = ix_t.id_word -- для отладки
                     LEFT JOIN (
                         SELECT * FROM (
                             ${sQueryWordWeight}
@@ -99,7 +100,7 @@ export class IxSQL extends BaseSQL
                     WHERE 
                         ix_t.id_word IN (${sWordList})
                     GROUP BY ix_t.id_row
-                    ORDER BY cnt_word DESC, sum_weight DESC
+                    ORDER BY sum_weight DESC
                     LIMIT 10
                     ;
                 `;

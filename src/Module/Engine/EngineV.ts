@@ -102,6 +102,23 @@ export namespace EngineV {
             .errorEx('search', 'search')
         );
 
+        rules.set(rules.rule('where')
+            .type(Components.ModelRulesT.text)
+            .errorEx('where', 'where')
+        );
+        
+        rules.set(rules.rule('ix_column_weight')
+            .type(Components.ModelRulesT.object)
+            .errorEx('ix_column_weight', 'ix_column_weight')
+        );
+
+        rules.set(rules.rule('exact_word_weight')
+            .type(Components.ModelRulesT.int)
+            .errorEx('exact_word_weight', 'exact_word_weight')
+        );
+
+        
+
         // ---------------------------------------
 
         return rules;

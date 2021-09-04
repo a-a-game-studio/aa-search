@@ -14,6 +14,8 @@ import { LetterSQL } from '../../../Infrastructure/SQL/Repository/LetterSQL';
 import _ from 'lodash';
 import { IxSQL } from '../../../Infrastructure/SQL/Repository/IxSQL';
 import { SourceSQL } from '../../../Infrastructure/SQL/Repository/SourceSQL';
+import { TableSQL } from '../../../Infrastructure/SQL/Repository/TableSQL';
+import { ColumnSQL } from '../../../Infrastructure/SQL/Repository/ColumnSQL';
 
 // Интерфейсы и сущьности
 
@@ -32,6 +34,10 @@ export class SelectM extends BaseM
 
     private sourceSQL: SourceSQL;
 
+    private tableSQL: TableSQL;
+
+    private columnSQL: ColumnSQL;
+
     constructor(req:any) {
         super(req);
 
@@ -39,6 +45,8 @@ export class SelectM extends BaseM
         this.letterSQL = new LetterSQL(req);
         this.ixSQL = new IxSQL(req);
         this.sourceSQL = new SourceSQL(req);
+        this.tableSQL = new TableSQL(req);
+        this.columnSQL = new ColumnSQL(req);
     }
 
     /**
@@ -49,9 +57,11 @@ export class SelectM extends BaseM
 
         const validData = this.logicSys.fValidData(V.search(), data);
 
-        const sPhrase = validData.search
+        const sPhrase = validData.search;
 
-        console.log(sPhrase);
+        console.log('=========================')
+        console.log('validData>>>>',validData);
+        console.log('=========================')
 
         const asWord = sPhrase.split(' ');
 
@@ -59,7 +69,7 @@ export class SelectM extends BaseM
         let ixWordWeight:{[key:number]:number} = {};
 
         for (let i = 0; i < asWord.length; i++) {
-            const sWord = asWord[i].trim();
+            const sWord = asWord[i] = asWord[i].trim();
             const aLetter:number[] = [];
 
             console.log(sWord);
@@ -107,14 +117,39 @@ export class SelectM extends BaseM
 
         console.log('aidWordFind:',aidWordFind.join(','));
 
-        const ixColumnWeight:Record<number, number> = {2: 10};
-        
+        const ixColumnWeight:Record<number, number> = {};
+        { // Увеличение веса колонки
+            const vTable = await this.tableSQL.oneByName(validData.table);
+            const aColumn = await this.columnSQL.listByTable(vTable.id);
+            const ixColumn = _.keyBy(aColumn, 'name');
 
-        const findRow = await this.ixSQL.searchRow(aidWordFind, ixWordWeight, ixColumnWeight);
+            _.forEach(validData.ix_column_weight, (v,k) => {
+                ixColumnWeight[ixColumn[k].id] = v;
+            })
+        }
+
+        // Увеличение веса точного совпадения слова
+        if( validData.exact_word_weight ){ 
+            const aExactWord = await this.wordSQL.listByWordList(asWord);
+            const aidfindExactWord = aExactWord.map(el => el.id);
+            const ixExactWord = _.keyBy(aidfindExactWord)
+
+            for (let i = 0; i < aidWordFind.length; i++) {
+                const idWordFind = aidWordFind[i];
+
+                if(ixExactWord[idWordFind]){
+                    ixWordWeight[idWordFind] = ixWordWeight[idWordFind] * validData.exact_word_weight;
+                }
+                
+            }
+        }
+
+        // Поиск строк
+        const findRow = await this.ixSQL.searchRow(validData.table, aidWordFind, ixWordWeight, ixColumnWeight);
 
         const aidRow = findRow.map(el => el.id_row);
 
-        const aRow = await this.sourceSQL.list('tovar',aidRow);
+        const aRow = await this.sourceSQL.list(validData.table, aidRow);
         console.log('aRow>>>', aRow);
 
         let out:R.search.ResponseI = null;
