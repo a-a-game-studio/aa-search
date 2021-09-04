@@ -59,27 +59,43 @@ export class IxSQL extends BaseSQL
         const sWordList = aidWord.join(',');
         console.log(ixWordWeight);
 
-        const asIfWeight:string[] = [];
-        let sQueryWeight = `VALUES `;
+        const asIfWordWeight:string[] = [];
+        let sQueryWordWeight = `VALUES `;
         _.forEach(ixWordWeight, (v,k) => { 
-            asIfWeight.push(`ROW(${k},${v})`)
+            asIfWordWeight.push(`ROW(${k},${v})`)
         })
-        sQueryWeight += asIfWeight.join(',');
-        console.log('weight:',sQueryWeight);
+        sQueryWordWeight += asIfWordWeight.join(',');
+        console.log('word - weight:',sQueryWordWeight);
+
+        const asColumnWeight:string[] = [];
+        let sQueryColumnWeight = `VALUES `;
+        _.forEach(ixColumnWeight, (v,k) => { 
+            asColumnWeight.push(`ROW(${k},${v})`)
+        })
+        sQueryColumnWeight += asColumnWeight.join(',');
+        console.log('column - weight:',sQueryColumnWeight);
 
         let resp = [];
 
         if(aidWord.length && _.size(ixWordWeight)){
             try{
                 const sql = `
-                    SELECT COUNT(*) cnt_word, SUM(q2.w) sum_weight, w.word, ix_t.*
+                    SELECT 
+                        COUNT(*) cnt_word,
+                        SUM( if(q4.id_column, q2.w * q4.w, q2.w) ) sum_weight, 
+                        w.word, ix_t.*
                     FROM ix_tovar ix_t 
                     LEFT JOIN word w ON w.id = ix_t.id_word
                     LEFT JOIN (
                         SELECT * FROM (
-                            ${sQueryWeight}
+                            ${sQueryWordWeight}
                         ) q1(id_word, w) 
                     ) q2 ON q2.id_word = ix_t.id_word
+                    LEFT JOIN (
+                        SELECT * FROM (
+                            ${sQueryColumnWeight}
+                        ) q3(id_column, w) 
+                    ) q4 ON q4.id_column = ix_t.id_column
                     WHERE 
                         ix_t.id_word IN (${sWordList})
                     GROUP BY ix_t.id_row
@@ -87,6 +103,9 @@ export class IxSQL extends BaseSQL
                     LIMIT 10
                     ;
                 `;
+
+                console.log('sql find row>>>>',this.db.raw(sql).toString())
+
                 resp = (await this.db.raw(sql))[0];
 
                 console.log('>>>>',resp);
