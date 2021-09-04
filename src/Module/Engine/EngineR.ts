@@ -100,6 +100,8 @@ export namespace EngineR {
             table:string; // таблицы
             search:string; // тестовый поиск
             where?:string; // Доп Условия
+            limit?:number; // Колчиество строк
+            page?:number; // Страница
             ix_column_weight?:Record<string, number> // Вес колонки
             exact_word_weight?:number // Вес колонки
         }
