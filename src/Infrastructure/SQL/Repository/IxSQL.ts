@@ -46,6 +46,65 @@ export class IxSQL extends BaseSQL
     /**
      * Получить список слов
      */
+     public async searchRow(aidWord:number[], ixWordWeight:Record<number, number>, ixColumnWeight:Record<number, number>): Promise<{
+        cnt_word: number; // Количество слова в строке
+        sum_weight: number; // Сумма веса
+        word: string; // Слово
+        id_row: number; // ID строки
+        id_word?: number; // ID слова
+        column?:number; // колонка таблицы
+        cnt?:number; // Количество совпадений в колонке
+     }[]>{
+
+        const sWordList = aidWord.join(',');
+        console.log(ixWordWeight);
+
+        const asIfWeight:string[] = [];
+        let sQueryWeight = `VALUES `;
+        _.forEach(ixWordWeight, (v,k) => { 
+            asIfWeight.push(`ROW(${k},${v})`)
+        })
+        sQueryWeight += asIfWeight.join(',');
+        console.log('weight:',sQueryWeight);
+
+        let resp = [];
+
+        if(aidWord.length && _.size(ixWordWeight)){
+            try{
+                const sql = `
+                    SELECT COUNT(*) cnt_word, SUM(q2.w) sum_weight, w.word, ix_t.*
+                    FROM ix_tovar ix_t 
+                    LEFT JOIN word w ON w.id = ix_t.id_word
+                    LEFT JOIN (
+                        SELECT * FROM (
+                            ${sQueryWeight}
+                        ) q1(id_word, w) 
+                    ) q2 ON q2.id_word = ix_t.id_word
+                    WHERE 
+                        ix_t.id_word IN (${sWordList})
+                    GROUP BY ix_t.id_row
+                    ORDER BY cnt_word DESC, sum_weight DESC
+                    LIMIT 10
+                    ;
+                `;
+                resp = (await this.db.raw(sql))[0];
+
+                console.log('>>>>',resp);
+
+            } catch (e){
+                this.errorSys.errorEx(e, 'IxSQL.list', 'Не удалось получить список');
+            }
+        }
+        
+
+        return resp;
+    }
+
+    
+
+    /**
+     * Получить список слов
+     */
     public async insert(data:IxI): Promise<number>{
 
         const validData = this.logicSys.fValidData(IxE.getRulesInsert(), data);

@@ -42,6 +42,64 @@ export class LetterSQL extends BaseSQL
         return resp;
     }
 
+    
+
+
+    /**
+     * Поиск слова по буквам
+     */
+     public async searchWord(aLetter:number[]): Promise<{
+        id_word:number, // ID найденного слова
+        word:string, // Слово
+        cnt_letter: number, // Количество символов
+        diff: number, // разница в совпадении
+        hit_first: number // совпадение первой буквы
+     }[]>{
+
+
+        const sLetterList = aLetter.join(',')
+
+        let resp:any[] = [];
+
+        if(aLetter.length){
+            try{
+                const sql = `
+                    SELECT
+                        w.word, l.id_word, 
+                        COUNT(l.id) cnt_letter,
+                        ABS(w.cnt*2 - :cnt_letter) diff,
+                        SUM(IF(l.code = :code_first_letter, 1, 0)) hit_first
+                    FROM letter l
+                    LEFT JOIN word w ON w.id = l.id_word
+                    WHERE
+                        l.code IN (${sLetterList})
+                    GROUP BY l.id_word
+                    HAVING hit_first= 1 AND cnt_letter > :cnt_letter_min AND cnt_letter < :cnt_letter_max
+                    ORDER BY diff ASC
+                    LIMIT 10
+                `;
+
+                const queryParam = {
+                    cnt_letter: aLetter.length, // Количество кодов букв
+                    cnt_letter_min: aLetter.length - 4, // минимальная погрешность длинны слова
+                    cnt_letter_max: aLetter.length + 4, // максимальная погрешность длинны слова
+                    code_first_letter: aLetter[1] // Первый код слова
+                };
+
+                console.log(this.db.raw(sql, queryParam).toString())
+
+                resp= (await this.db.raw(sql, queryParam))[0];
+
+            } catch (e){
+                this.errorSys.errorEx(e, 'LetterSQL.list', 'Не удалось получить список');
+            }
+        }
+        
+
+        return resp;
+    }
+
+
     /**
      * Получить список слов
      */
@@ -57,7 +115,7 @@ export class LetterSQL extends BaseSQL
             );
 
         } catch (e){
-            this.errorSys.errorEx(e, 'LetterSQL.list', 'Не удалось получить список');
+            this.errorSys.errorEx(e, 'LetterSQL.insert', 'Не удалось получить список');
         }
 
         return idLetter;

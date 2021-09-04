@@ -108,13 +108,13 @@ export class InsertM extends BaseM
                     //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Number(v) });
                     // }
 
-                    if(ixColumn[k].type == ColumnT.json){
-                        try {
-                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify(v) });
-                        } catch (e){
-                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify({}) });
-                        }
-                    }
+                    // if(ixColumn[k].type == ColumnT.json){
+                    //     try {
+                    //         aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify(v) });
+                    //     } catch (e){
+                    //         aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify({}) });
+                    //     }
+                    // }
                 }
 
             });

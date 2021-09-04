@@ -88,4 +88,24 @@ export namespace EngineR {
 
     }
 
+    // =======================================================
+    /** поиск */
+    export namespace search {
+
+        /** APIURL */
+        export const route = '/engine/search';
+
+        /** Параметры api запроса */
+        export interface RequestI {
+            table:string; // таблицы
+            search:string; // тестовый поиск
+        }
+
+        /** Параметры api ответа */
+        export interface ResponseI {
+            list_row:any[]; // список строк
+        }
+
+    }
+
 }

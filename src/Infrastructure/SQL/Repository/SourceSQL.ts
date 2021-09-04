@@ -25,14 +25,14 @@ export class SourceSQL extends BaseSQL
     /**
      * Получить список слов
      */
-    public async list(): Promise<SourceI[]>{
+    public async list(sTable:string, aidRow:number[]): Promise<SourceI[]>{
 
         let resp = null;
 
         try{
-            resp = (await this.db(SourceE.NAME)
+            resp = (await this.db(SourceE.NAME+sTable)
+                .whereIn('id',aidRow)
                 .select()
-                .limit(30)
             );
 
         } catch (e){

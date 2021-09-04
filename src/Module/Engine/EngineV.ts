@@ -8,9 +8,6 @@ export namespace EngineV {
     // =======================================================
     /**
      * Вставка данных
-     *
-     * @param req MainRequest
-     * @param data RequestI
      */
     export function insert() {
         let rules = new Components.ModelRulesC();
@@ -79,6 +76,33 @@ export namespace EngineV {
             .require()
             .errorEx('table', 'table')
         );
+
+        return rules;
+    }
+
+    // =======================================================
+    /**
+     * Вставка данных
+     */
+     export function search() {
+        let rules = new Components.ModelRulesC();
+
+        // ---------------------------------------
+
+        // Сколько записей получать
+        rules.set(rules.rule('table')
+            .type(Components.ModelRulesT.text)
+            .require()
+            .errorEx('table', 'table')
+        );
+
+        rules.set(rules.rule('search')
+            .type(Components.ModelRulesT.text)
+            .require()
+            .errorEx('search', 'search')
+        );
+
+        // ---------------------------------------
 
         return rules;
     }

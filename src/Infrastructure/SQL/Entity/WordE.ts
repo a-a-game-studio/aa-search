@@ -27,6 +27,12 @@ export class WordE
             .error('login - неверный формат')
         );
 
+        rules.set(rules.rule('cnt')
+            .type(ModelRulesT.text)
+            .require()
+            .error('cnt - неверный формат')
+        );
+
         return rules;
     }
 

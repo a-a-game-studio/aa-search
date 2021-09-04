@@ -10,6 +10,7 @@ import {EngineR} from './EngineR'
 import R = EngineR;
 import { MainRequest } from '../../System/MainRequest';
 import { SchemaM } from './Model/SchemaM';
+import { SelectM } from './Model/SelectM';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ class Ctrl extends BaseCtrl {
 
     public insertM: InsertM;
     public schemaM: SchemaM;
+    public selectM: SelectM;
 
     /**
      * Конструктор
@@ -32,6 +34,7 @@ class Ctrl extends BaseCtrl {
         
         // Инициализация бизнес моделей
         this.insertM = new InsertM(this.req);
+        this.selectM = new SelectM(this.req);
         this.schemaM = new SchemaM(this.req);
 
     }
@@ -42,6 +45,14 @@ router.post(R.insert.route, async (req: MainRequest, res: any, next: any) => {
     await ctrl.faInit();
     await ctrl.faAction('Вставка данных', () => {
         return ctrl.insertM.insert(req.body);
+    })
+});
+
+router.post(R.search.route, async (req: MainRequest, res: any, next: any) => {
+    const ctrl = new Ctrl(req, res);
+    await ctrl.faInit();
+    await ctrl.faAction('Вставка данных', () => {
+        return ctrl.selectM.search(req.body);
     })
 });
 
