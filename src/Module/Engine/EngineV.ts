@@ -106,6 +106,16 @@ export namespace EngineV {
             .type(Components.ModelRulesT.text)
             .errorEx('where', 'where')
         );
+
+        rules.set(rules.rule('limit')
+            .type(Components.ModelRulesT.int)
+            .errorEx('limit', 'limit')
+        );
+
+        rules.set(rules.rule('page')
+            .type(Components.ModelRulesT.int)
+            .errorEx('page', 'page')
+        );
         
         rules.set(rules.rule('ix_column_weight')
             .type(Components.ModelRulesT.object)
