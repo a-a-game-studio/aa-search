@@ -23,20 +23,22 @@ export class WordSQL extends BaseSQL
 
     // Проверить наличие слова в базе
     public async checkWord(sWord:string): Promise<boolean>{
-        let oneWord = null;
-        try{
-            oneWord = await this.cacheSys.autoCache(`fCheckWord(${sWord})`, 3600, async () => {
+        let oneWord:any = null;
+        oneWord = await this.cacheSys.autoCache(`fCheckWord(${sWord})`, 3600, async () => {
+            try{
+                
                 oneWord = (await this.db(WordE.NAME)
                     .where({word:sWord})
                     .limit(1)
-                    .select()
+                    .select('id')
                 )[0];
+                    
+            } catch(e){
+                console.log('!!!ERROR>fCheckWord>', e);
+            }
 
-                return oneWord;
-            })
-        } catch(e){
-            console.log('!!!ERROR>fCheckWord>', e);
-        }
+            return oneWord;
+        })
 
         return oneWord ? true : false;
     }

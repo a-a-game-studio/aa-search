@@ -82,7 +82,7 @@ export class InsertM extends BaseM
 
             _.forEach(vRow, (v:any,k:string) => {
 
-                console.log(k, ixColumn[k]);
+                // console.log(k, ixColumn[k]);
                 if(ixColumn[k]){
                     // if(ixColumn[k].type == ColumnT.bool){
                     //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Boolean(v) });

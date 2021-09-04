@@ -42,6 +42,7 @@ import ResponseSysMiddleware from './Middleware/ResponseSysMiddleware';
 import AuthSysMiddleware from './Middleware/AuthSysMiddleware';
 import { gEngineCtrl } from './Module/Engine/EngineCtrl';
 import { gIndexCtrl } from './Module/Common/IndexCtrl';
+import RedisMiddleware from './Middleware/RedisMiddleware';
 
 
 /* Инициализация базовых систем */
@@ -51,8 +52,10 @@ app.use(InitBaseSysMiddleware);
 app.use(ConfigMiddleware);
 
 // кэш
-const sharedMem = {};
-app.use(SharedMemMiddleware(sharedMem));
+// const sharedMem = {};
+// app.use(SharedMemMiddleware(sharedMem));
+
+app.use(RedisMiddleware)
 
 // база
 app.use(MySqlMiddleware);
