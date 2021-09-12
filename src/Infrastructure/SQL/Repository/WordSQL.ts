@@ -10,7 +10,8 @@ import { WordE, WordI } from '../Entity/WordE';
 import _ from 'lodash';
 import { LetterI } from '../Entity/LetterE';
 
-
+let iIn = 0;
+let iCache = 0;
 /**
  * Здесь методы для SQL запросов
  */
@@ -24,7 +25,11 @@ export class WordSQL extends BaseSQL
     // Проверить наличие слова в базе
     public async checkWord(sWord:string): Promise<boolean>{
         let oneWord:any = null;
+
+        iIn++;
         oneWord = await this.cacheSys.autoCache(`fCheckWord(${sWord})`, 3600, async () => {
+
+            iCache++;
             try{
                 
                 oneWord = (await this.db(WordE.NAME)
@@ -39,6 +44,8 @@ export class WordSQL extends BaseSQL
 
             return oneWord;
         })
+
+        // console.log('checkWordCounter>>>', iIn, iCache)
 
         return oneWord ? true : false;
     }

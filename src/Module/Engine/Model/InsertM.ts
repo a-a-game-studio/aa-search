@@ -66,67 +66,51 @@ export class InsertM extends BaseM
 
         const validData = this.logicSys.fValidData(V.insert(), data);
 
-        let aRowData:any[] = [];
-        const vTable = await this.tableSQL.oneByName(validData.table);
+        const aaRowInput = _.chunk(validData.list_row, 100);
 
-        const aColumn = await this.columnSQL.listByTable(vTable.id);
+        await Promise.all(aaRowInput.map(async (aRowInput) => {
 
-        const ixColumn = _.keyBy(aColumn, 'name');
+            let aRowData:any[] = [];
+            
+            const vTable = await this.tableSQL.oneByName(validData.table);
 
-        // console.log('ixColumn>>>', ixColumn);
+            const aColumn = await this.columnSQL.listByTable(vTable.id);
 
-        for (let i = 0; i < validData.list_row.length; i++) {
-            const vRow = validData.list_row[i];
+            const ixColumn = _.keyBy(aColumn, 'name');
 
-            const idRow = Number(vRow.id);
+            // console.log('ixColumn>>>', ixColumn);
 
-            _.forEach(vRow, (v:any,k:string) => {
+            for (let i = 0; i < aRowInput.length; i++) {
+                const vRow = aRowInput[i];
 
-                // console.log(k, ixColumn[k]);
-                if(ixColumn[k]){
-                    // if(ixColumn[k].type == ColumnT.bool){
-                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Boolean(v) });
-                    // }
+                const idRow = Number(vRow.id);
 
-                    // if(ixColumn[k].type == ColumnT.int){
-                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Number(v) });
-                    // }
+                _.forEach(vRow, (v:any,k:string) => {
 
-                    if(ixColumn[k].type == ColumnT.str){
-                        aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
+                    // console.log(k, ixColumn[k]);
+                    if(ixColumn[k]){
+
+                        if(ixColumn[k].type == ColumnT.str){
+                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
+                        }
+
+                        if(ixColumn[k].type == ColumnT.text){
+                            aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
+                        }
                     }
 
-                    if(ixColumn[k].type == ColumnT.text){
-                        aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: this.engineS.fClearText(v) });
-                    }
+                });
+            }
 
-                    // if(ixColumn[k].type == ColumnT.uid){
-                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: v });
-                    // }
+            const aInsertedWord = await this.engineS.faInsertWord(aRowData);
 
-                    // if(ixColumn[k].type == ColumnT.decimal){
-                    //     aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: Number(v) });
-                    // }
+            await this.engineS.faInsertLetter(aInsertedWord);
 
-                    // if(ixColumn[k].type == ColumnT.json){
-                    //     try {
-                    //         aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify(v) });
-                    //     } catch (e){
-                    //         aRowData.push({ id_row: idRow, id_column:ixColumn[k].id, text: JSON.stringify({}) });
-                    //     }
-                    // }
-                }
+            await this.engineS.faInsertIxWord(validData.table, aRowData);
 
-            });
-        }
+            await this.sourceSQL.packInsert(validData.table, aRowInput);
 
-        const aInsertedWord = await this.engineS.faInsertWord(aRowData);
-
-        await this.engineS.faInsertLetter(aInsertedWord);
-
-        await this.engineS.faInsertIxWord(validData.table, aRowData);
-
-        await this.sourceSQL.packInsert(validData.table, validData.list_row);
+        }));
 
         let out:R.insert.ResponseI = null;
         await this.logicSys.ifOk('Формирование ответа', async () => {

@@ -74,7 +74,7 @@ export class EngineS extends BaseM {
             const asWord = vRowData.text.split(' ');
 
             for (let j = 0; j < asWord.length; j++) {
-                const sWord = String(asWord[j]).trim();
+                let sWord = String(asWord[j]).trim();
 
                 let idWord = 0;
                 // Проверям слово в базе

@@ -1,5 +1,3 @@
-
-
 import redis from 'ioredis';
 import Knex = require('knex');
 import _ from 'lodash';
@@ -331,4 +329,3 @@ export class RedisSys {
 		return sKey
 	}
 }
-

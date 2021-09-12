@@ -20,6 +20,9 @@ export default async function RedisMiddleware(req: MainRequest, res: any, next: 
 
         // console.log('redis connection...');
         req.infrastructure.redis = redisSys;
+        if(redisSys.redisMaster && redisSys.redisScan){
+            req.sys.bCache = true;
+        }
 
     }
     // console.log('connection redis complete;');

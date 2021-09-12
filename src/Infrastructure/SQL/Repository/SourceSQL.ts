@@ -81,7 +81,7 @@ export class SourceSQL extends BaseSQL
             }
 
         } catch (e){
-            this.errorSys.errorEx(e, 'IxSQL.packInsert', 'Не удалось получить список');
+            this.errorSys.errorEx(e, 'IxSQL.packInsert', 'Не удалось записать исходники строк');
         }
 
         return idIx;
