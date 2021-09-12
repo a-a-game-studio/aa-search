@@ -263,7 +263,7 @@ async function runInsertWord(aRowData:{
                         .insert({word:sWord, cnt:sWord.length})
                     )[0];
 
-                    console.log('===>',idWord, sWord);
+                    console.log('===1>',idWord, sWord);
 
                     asWordPool.push({
                         id_word:idWord, word:sWord

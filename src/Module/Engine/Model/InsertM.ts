@@ -124,7 +124,7 @@ export class InsertM extends BaseM
 
         await this.engineS.faInsertLetter(aInsertedWord);
 
-        await this.engineS.faInsertIxWord(aRowData);
+        await this.engineS.faInsertIxWord(validData.table, aRowData);
 
         await this.sourceSQL.packInsert(validData.table, validData.list_row);
 

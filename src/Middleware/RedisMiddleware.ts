@@ -1,6 +1,6 @@
 // Подключение системных классов
 import { MainRequest } from '../System/MainRequest';
-import { RedisSys } from '@a-a-game-studio/aa-redis-sys/lib';
+import { redisSys } from '../System/DBConnect';
 var redis = require("redis");
 
 
@@ -18,11 +18,11 @@ export default async function RedisMiddleware(req: MainRequest, res: any, next: 
 
     if (req.sys.errorSys.isOk()) {
 
-        console.log('redis connection...');
-        req.infrastructure.redis = new RedisSys.RedisSys(req.conf.redis, redis.createClient(req.conf.redis));
+        // console.log('redis connection...');
+        req.infrastructure.redis = redisSys;
 
     }
-    console.log('connection redis complete;');
+    // console.log('connection redis complete;');
 
     next();
 }

@@ -213,7 +213,7 @@ export class SourceSQL extends BaseSQL
             }
 
         } catch (e){
-            this.errorSys.errorEx(e, 'SourceSQL.createTable', 'Не удалось очистить таблицу');
+            this.errorSys.errorEx(e, 'SourceSQL.createTable', 'Не удалось создать таблицу');
         }
         
         return this.errorSys.isOk();

@@ -35,10 +35,12 @@ export class EngineS extends BaseM {
             const sWord = aRowData[i].word;
             const idWord = aRowData[i].id_word;
 
-            for (let j = 0; j < sWord.length; j++) {
-                aInsert.push({id_word:idWord, code:sWord.charCodeAt(j)})
+            if(sWord.length > 1 && !Number(sWord)){
 
-                if(sWord.length > 1){
+                for (let j = 0; j < sWord.length; j++) {
+                
+                    aInsert.push({id_word:idWord, code:sWord.charCodeAt(j)})
+
                     if(j == 0){
                         aInsert.push({id_word:idWord, code:sWord.charCodeAt(j)*10000 + sWord.charCodeAt(j+1)})
                     } else if( j == sWord.length - 1){
@@ -76,14 +78,14 @@ export class EngineS extends BaseM {
 
                 let idWord = 0;
                 // Проверям слово в базе
-                if(sWord.length > 1){
+                if(sWord.length > 1 && !Number(sWord)){
                     const ifWord = await this.wordSQL.checkWord(sWord);
                     
                     
                     if(!ifWord && sWord != ''){
 
                         idWord = await this.wordSQL.insert({word:sWord, cnt:sWord.length});
-                        console.log('===>',idWord, sWord);
+                        console.log('===2>',idWord, sWord);
 
                         asWordPool.push({
                             id_word:idWord, word:sWord
@@ -98,7 +100,7 @@ export class EngineS extends BaseM {
     }
 
     /** Вставка индекса слов */
-    public async faInsertIxWord(aRowData:{
+    public async faInsertIxWord(sTable:string, aRowData:{
         id_row: number; // ID строки
         id_column:number; // ID колонки
         text: string; // Текст
@@ -116,7 +118,7 @@ export class EngineS extends BaseM {
             for (let j = 0; j < asWord.length; j++) {
                 const sWord = String(asWord[j]).trim();
 
-                if(sWord.length > 1){
+                if(sWord.length > 1 && !Number(sWord)){
                     asWordClean.push(sWord);
 
                     if(!ixWordCounter[sWord]){
@@ -148,7 +150,7 @@ export class EngineS extends BaseM {
 
         // console.log('aIxWord>>>', aIxWord);
 
-        await this.ixSQL.packInsert('tovar', aIxWord);
+        await this.ixSQL.packInsert(sTable, aIxWord);
 
         return null;
     }

@@ -74,7 +74,7 @@ export class SelectM extends BaseM
 
             console.log(sWord);
 
-            if(sWord.length > 2){
+            if(sWord.length > 2 && !Number(sWord)){
             
                 for (let j = 0; j < sWord.length; j++) {
                     aLetter.push(sWord.charCodeAt(j));

@@ -46,14 +46,6 @@ const cacheSys = new CacheSys(req);
 const querySearchSys = new QuerySys();
 querySearchSys.fConfig(apiSearchEngine);
 
-
-const confIndex = {
-    'name':1,
-    'sostav':2,
-    'description':3,
-    'ostatok':4
-}
-
 async function runInsert(){
 
     querySearchSys.fInit();
@@ -66,28 +58,83 @@ async function runInsert(){
 
     console.log('Отправка данных');
     await querySearchSys.faSend('/engine/del-table', <EngineR.delTable.RequestI>{
-        table:'tovar'
+        table:'active_item'
     });
 
     // =============================================
 
+    // querySearchSys.fInit();
+    // querySearchSys.fActionOk((data: any) => {
+    //     console.log('Данные успешно отправленны')
+    // });
+    // querySearchSys.fActionErr((e:any) => {
+    //     console.log('Произошла ошибка', e)
+    // });
+
+    // console.log('Отправка данных');
+    // await querySearchSys.faSend('/engine/create-table', <EngineR.createTable.RequestI>{
+    //     table:'tovar', 
+    //     list_column: [
+    //         { name:'kod_1c', type: 'uid' },
+    //         { name:'name', type: 'str' },
+    //         { name:'sostav', type: 'text' },
+    //         { name:'description', type: 'text' },
+    //         { name:'ostatok', type: 'text' },
+    //     ]
+    // });
+
+    // ===============================================
+
     querySearchSys.fInit();
     querySearchSys.fActionOk((data: any) => {
-        console.log('Данные успешно отправленны')
+        console.log('Таблица active_item - успешшно создана')
     });
     querySearchSys.fActionErr((e:any) => {
-        console.log('Произошла ошибка', e)
+        console.log('Таблица active_item - не удалось создать', e)
     });
 
     console.log('Отправка данных');
     await querySearchSys.faSend('/engine/create-table', <EngineR.createTable.RequestI>{
-        table:'tovar', 
+        table:'active_item', 
         list_column: [
-            { name:'kod_1c', type: 'uid' },
-            { name:'name', type: 'str' },
-            { name:'sostav', type: 'text' },
-            { name:'description', type: 'text' },
-            { name:'ostatok', type: 'text' },
+            { name:'stock_name', type: 'str' },
+            { name:'purchase_name', type: 'str' },
+            { name:'category_name', type: 'str' },
+            { name:'catalog_name', type: 'str' },
+            { name:'item_name', type: 'str' },
+            { name:'article', type: 'str' },
+            
+            // Текстовые поля
+            { name:'item_desc', type: 'text' },
+            { name:'characteristic', type: 'text' },
+            { name:'tags_name', type: 'text' },
+            { name:'category_keyword', type: 'text' },
+
+            // JSON
+            { name:'characteristic_ids', type: 'text' },
+            { name:'tags_id', type: 'text' },
+
+            
+            // INT
+            { name:'item_id', type: 'int' },
+            { name:'stock_id', type: 'int' },
+            { name:'purchase_id', type: 'int' },
+            { name:'purchase_state_id', type: 'int' },
+            { name:'category_id', type: 'int' },
+            { name:'catalog_id', type: 'int' },
+            { name:'org_id', type: 'int' },
+            { name:'item_org_fee', type: 'int' },
+            { name:'cnt_order', type: 'int' },
+            { name:'consumer_rating', type: 'int' },
+
+            { name:'is_adult', type: 'bool' },
+            { name:'is_bundle', type: 'bool' },
+            
+            { name:'item_price', type: 'decimal' },
+            
+            
+            
+            
         ]
     });
 

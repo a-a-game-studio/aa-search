@@ -1,4 +1,5 @@
 // Подключение системных классов
+import { dbSearch } from '../System/DBConnect';
 import { MainRequest } from '../System/MainRequest';
 
 /**
@@ -18,10 +19,10 @@ export default async function MySqlMiddleware(req: MainRequest, res: any, next: 
     }
 
     if( req.sys.errorSys.isOk() ){
-        console.log('mysql connection...');
-        req.infrastructure.mysql = require('knex')(req.conf.mysql);             
+        // console.log('mysql connection...');
+        req.infrastructure.mysql = dbSearch;      
     }
-    console.log('connection mysql complete;');
+    // console.log('connection mysql complete;');
 
     next();
 }
